@@ -9,18 +9,11 @@
 
 #include "main.h"
 #include "joystick.h"
+#include "converter.h"
+#include "timers.h"
+#include "portConfig.h"
 
-int turnTblSpeed = 0;
-
-int turnTblButtonPrev = 0;
-int turnTblButton = 0;
-
-bool flyWheelToggle = false;
-int flyWheelSpeed = 127;
-
-bool flyWheelToggleB = false;
-
-int direction = 1;
+float tiltSensitivity = 0.75;
 
 void operatorControl() {
 	JoystickButtonGroup intakeButton(1, 5);
@@ -33,10 +26,15 @@ void operatorControl() {
 	JoystickAnalog liftAxis(1, 2);
 	JoystickAnalog liftTiltAxis(1, 1);
 
+	Timer turnTableTimer;
+
 	while (true) {
-		bool nChangeButton = joystickGetDigital(1, 7, JOY_DOWN) == 1;
-		bool nFlyWheelToggleB = joystickGetDigital(1, 8, JOY_DOWN) == 1;
-		float forw 		= forwardAxis.getValue() * direction;
+		directionButton.update();
+		flyWheelButton.update();
+		intakeButton.update();
+		turnTableButton.update();
+
+		float forw 		= forwardAxis.getValue() * (directionButton.getToggled() ? -1 : 1);
 		float turn		= turnAxis.getValue();
 		float left 		= forw + turn;
 		float right 	= forw - turn;
@@ -44,7 +42,7 @@ void operatorControl() {
 		int tilt = liftTiltAxis.getValue();
 		float upLeft	= up+(tilt*tiltSensitivity);
 		float upRight	= up-(tilt*tiltSensitivity);
-		int liftPot = (leftLiftPotent.getHRCalibratedValue()-100) + (SensorValue[rightLiftPot]-400);
+		int liftPot = (leftLiftPotent.getCalibratedValue()) + (rightLiftPotent.getCalibratedValue());
 		float liftMult = 1.0;
 		if (liftPot > 500) {
 			liftPot-=500;
@@ -52,42 +50,27 @@ void operatorControl() {
 			liftMult = liftMult < 0.4 ? 0.4 : liftMult;
 		}
 
-		if (nChangeButton != changeButton && nChangeButton) {
-			direction *= -1;
-		}
-
-		if (nFlyWheelToggleB != flyWheelToggleB && nFlyWheelToggleB) {
-			flyWheelToggle = !flyWheelToggle;
-		}
-
 		leftDrive.setSpeed(left*liftMult);
 		rightDrive.setSpeed(right*liftMult);
-		intake.setSpeed(intakeButton.getPressed()*127);
-		motor[intakeMotor] = intake*127;
-		motor[flyWheel] = flyWheelToggle*flyWheelSpeed;
+		intake.setSpeed(intakeButton.getTotal()*127);
+		flyWheel.setSpeed(flyWheelButton.getToggled()*127);
 		//setLeftDriveSpeed(left);
 		//setRightDriveSpeed(right);
-		motor[leftLift] = upLeft;
-		motor[rightLift] = upRight;
-		motor[turnTable] = turnTblSpeed;
-		setLCDPosition(0,0);
-		displayNextLCDNumber(getMotorEncoder(leftSide1));
-		setLCDPosition(1,0);
-		displayNextLCDNumber(getMotorEncoder(rightSide1));
-		changeButton = nChangeButton;
-		flyWheelToggleB = nFlyWheelToggleB;
-		if (turnTblButtonPrev != turnTblButton && turnTblButton != 0) {	//If the turntable button was just pressed
-			clearTimer(0);
+		leftLift.setSpeed(upLeft);
+		rightLift.setSpeed(upRight);
+		lcd.setLine(1, convertIntToString(leftIME.getDistance()));
+		lcd.setLine(2, convertIntToString(rightIME.getDistance()));
+		if (turnTableButton.getPressed()) {	//If the turntable button was just pressed
+			turnTableTimer.resetTimer();
 		}
-		if (turnTblButton != 0) {
-			if (time100[0] < 5) {
-				turnTblSpeed = 30*turnTblButton;
+		if (turnTableButton.getTotal() != 0) {
+			if (turnTableTimer.getTimeMillis() < 500) {
+				turnTable.setSpeed(127*turnTableButton.getTotal());
 			} else {
-				turnTblSpeed = 127*turnTblButton;
+				turnTable.setSpeed(127*turnTableButton.getTotal());
 			}
 		} else {
-			turnTblSpeed = 0;
+			turnTable.setSpeed(0);
 		}
-		turnTblButtonPrev = turnTblButton;
 	}
 }

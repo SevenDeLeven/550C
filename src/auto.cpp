@@ -6,14 +6,12 @@
  * PROS contains FreeRTOS (http://www.freertos.org) whose source code may be
  * obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  */
-
 #include "main.h"
-#include <string>
-std::string autonomousNames[] = {"Blue Flag", "Red Flag", "Blue Cap", "Red Cap", "Skills"};
+#include "auto.h"
+#include "portConfig.h"
+const char* autonomousNames[] = {"Blue Flag", "Red Flag", "Blue Cap", "Red Cap", "Skills"};
 
 int s_autonomousNames = 5;
-
-int auton = 0;
 
 bool ranPreAuton = false;
 
@@ -33,22 +31,4 @@ const char* getAutonName() {
 	} else {
 		return "Auton > 4 ERR";
 	}
-}
-
-void pre_auton()
-{
-
-}
-
-void lift(int height) {
-
-}
-
-void liftSpeed(int speed) {
-	motor[leftLift] = speed;
-	motor[rightLift] = speed;
-}
-
-void intakeSpeed(int speed) {
-	motor[intakeMotor] = speed;
 }

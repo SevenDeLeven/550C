@@ -7,8 +7,10 @@
  * obtained from http://sourceforge.net/projects/freertos/files/ or on request.
  */
 
+#include <vector>
 #include "main.h"
-
+#include "auto.h"
+#include "portConfig.h"
 /*
  * Runs pre-initialization code. This function will be started in kernel mode one time while the
  * VEX Cortex is starting up. As the scheduler is still paused, most API functions will fail.
@@ -18,22 +20,7 @@
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
-  leftLiftPotent = AnalogSensor(1);
-  rightLiftPotent = AnalogSensor(2);
-  leftDrive1 = Motor(2);
-  leftDrive2 = Motor(3);
-  leftLift = Motor(4);
-  turnTable = Motor(5);
-  flyWheel = Motor(6);
-  rightLift = Motor(7);
-  rightDrive1 = Motor(8);
-  rightDrive2 = Motor(9);
-  intake = Motor(10);
-  Motor leftDriveMotors[2] = *(new Motor[2]{leftDrive1, leftDrive2});
-  Motor rightDriveMotors[2] = *(new Motor[2]{rightDrive1, rightDrive2});
 
-  leftDrive = MotorGroup(leftDriveMotors, 2);
-  rightDrive = MotorGroup(rightDriveMotors, 2);
 }
 
 /*
@@ -49,24 +36,21 @@ void initializeIO() {
  * will not start. An autonomous mode selection menu like the pre_auton() in other environments
  * can be implemented in this task if desired.
  */
-#include <vector>
-#include "motors.h"
 void initialize() {
+  lcd = LCD(uart1);
   if (imeInitializeAll() != 2) {
 
   }
-
-	clearLCDLine(0);
-	clearLCDLine(1);
+  lcd.clearLCD();
 	bool rightPressedPrev = false;
 	bool leftPressedPrev = false;
 	bool centerPressedPrev = false;
 	bool changedLCD = true;
 
-	while (bIfiRobotDisabled || debug) {
-		bool rightPressed = rightLCDButtonPressed();
-		bool leftPressed = leftLCDButtonPressed();
-		bool centerPressed = centerLCDButtonPressed();
+	while (!isEnabled()) {
+		bool rightPressed = lcd.getRightButtonPressed();
+		bool leftPressed = lcd.getLeftButtonPressed();
+		bool centerPressed = lcd.getCenterButtonPressed();
 		if (rightPressed && !rightPressedPrev) {
 			auton++;
 			auton%=s_autonomousNames;
@@ -79,13 +63,12 @@ void initialize() {
 		}
 		if (centerPressed && !centerPressedPrev) {
 			//CENTER BUTTON PRESSED
-			debug = false;
 		}
 		if (changedLCD) {
-			clearLCDLine(0);
-			displayLCDCenteredString(0,getAutonName());
-			clearLCDLine(1);
-			displayLCDCenteredString(1,autonomousNames[auton]);
+			lcd.clearLine(0);
+			lcd.setLine(0, getAutonName());
+			lcd.clearLine(1);
+      lcd.setLine(1, autonomousNames[auton]);
 		}
 		rightPressedPrev = rightPressed;
 		leftPressedPrev = leftPressed;

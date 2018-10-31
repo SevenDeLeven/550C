@@ -6,6 +6,10 @@ Motor::Motor(unsigned char port) {
   this->m_reversed = false;
 }
 
+Motor::~Motor() {
+
+}
+
 void Motor::setReversed(bool reversed) {
   this->m_reversed = reversed;
 }

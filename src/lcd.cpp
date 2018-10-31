@@ -3,6 +3,7 @@
 
 LCD::LCD(PROS_FILE * lcd) {
   this->lcd = lcd;
+  lcdInit(lcd);
 }
 
 LCD::~LCD() {
@@ -10,27 +11,31 @@ LCD::~LCD() {
 }
 
 void LCD::updateLCD() {
-  lcdSetText(this->lcd, 1, ln1.c_str());
-  lcdSetText(this->lcd, 2, ln2.c_str());
+  lcdSetText(this->lcd, 1, ln1);
+  lcdSetText(this->lcd, 2, ln2);
 }
 
 void LCD::clearLCD() {
-  ln1 = "";
-  ln2 = "";
+  ln1 = const_cast<char*>("");
+  ln2 = const_cast<char*>("");
   this->updateLCD();
 }
 
-void LCD::println(std::string strng)  {
+void LCD::clearLine(unsigned char line) {
+  
+}
+
+void LCD::println(const char* strng)  {
   this->ln1 = this->ln2;
-  this->ln2 = strng;
+  this->ln2 = const_cast<char*>(strng);
   this->updateLCD();
 }
 
-void LCD::setLine(unsigned char line, std::string strng) {
+void LCD::setLine(unsigned char line, const char* strng) {
   if (line == 1) {
-    ln1 = strng;
+    ln1 = const_cast<char*>(strng);
   } else if (line == 2) {
-    ln2 = strng;
+    ln2 = const_cast<char*>(strng);
   }
   this->updateLCD();
 }

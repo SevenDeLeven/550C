@@ -28,22 +28,7 @@
 #include <API.h>
 #include "sensors.h"
 #include "motors.h"
-
-extern AnalogSensor leftLiftPotent;
-extern AnalogSensor rightLiftPotent;
-
-extern Motor leftDrive1;
-extern Motor leftDrive2;
-extern Motor leftLift;
-extern Motor turnTable;
-extern Motor flyWheel;
-extern Motor rightLift;
-extern Motor rightDrive1;
-extern Motor rightDrive2;
-extern Motor intake;
-
-extern MotorGroup leftDrive;
-extern MotorGroup rightDrive;
+#include "lcd.h"
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus

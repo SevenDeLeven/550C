@@ -1,22 +1,25 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include <string>
-
-class PROS_FILE;
+#include "API.h"
 
 class LCD {
 private:
   PROS_FILE * lcd;
-  std::string ln1, ln2;
+  char* ln1;
+  char* ln2;
 public:
   LCD (PROS_FILE * lcd);
   virtual ~LCD ();
+  void updateButtons();
   void updateLCD();
   void clearLCD();
-  void println(std::string strng);
-  void setLine(unsigned char line, std::string strng);
+  void println(const char* strng);
+  void setLine(unsigned char line, const char* strng);
   void clearLine(unsigned char line);
+  bool getLeftButtonPressed();
+  bool getRightButtonPressed();
+  bool getCenterButtonPressed();
 };
 
 #endif

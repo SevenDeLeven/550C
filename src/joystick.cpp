@@ -76,6 +76,16 @@ JoystickButtonGroup::~JoystickButtonGroup() {
 
 }
 
+void JoystickButtonGroup::update() {
+  int total = this->getTotal();
+  if (total != this->m_prevTotal && total != 0) {
+    this->m_pressed = true;
+  } else {
+    this->m_pressed = false;
+  }
+  this->m_prevTotal = total;
+}
+
 void JoystickButtonGroup::reverse() {
   this->m_reversed = !this->m_reversed;
 }
@@ -92,10 +102,14 @@ int JoystickButtonGroup::getTotal() {
   return (joystickGetDigital(this->m_joystick, this->m_group, JOY_UP) - joystickGetDigital(this->m_joystick, this->m_group, JOY_DOWN)) * (this->m_reversed ? -1 : 1);
 }
 
+bool JoystickButtonGroup::getPressed() {
+  return this->m_pressed;
+}
 
 
 
-JoystickAnalog::JoystickAnalog(unsigned char joytick, unsigned char axis) {
+
+JoystickAnalog::JoystickAnalog(unsigned char joystick, unsigned char axis) {
   this->m_joystick = joystick;
   this->m_axis = axis;
 }

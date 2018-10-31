@@ -41,14 +41,18 @@ class JoystickButtonGroup {
 private:
   unsigned char m_joystick;
   unsigned char m_group;
+  int m_prevTotal;
+  bool m_pressed;
   bool m_reversed;
 public:
   JoystickButtonGroup(unsigned char joystick, unsigned char group);
   virtual ~JoystickButtonGroup();
+  void update();
   void reverse();
   void setReversed(bool reversed);
   bool getReversed();
   int getTotal();
+  bool getPressed();
 };
 
 
